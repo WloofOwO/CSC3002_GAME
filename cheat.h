@@ -1,7 +1,7 @@
 #ifndef CHEAT_H
 #define CHEAT_H
 #include <QObject>
-
+//test
 class Cheat : public QObject {
     Q_OBJECT
 public:
