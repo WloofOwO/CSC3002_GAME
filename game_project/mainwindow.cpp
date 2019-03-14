@@ -165,5 +165,211 @@ void MainWindow::CreateInform() {           // Print player information
 
 }
 
+void MainWindow::slotDrawScene() {          // Draw the whole scene
+    if (view->GetStatus() != "main") return;
+    Clear();
+    CreateInform();
+    AddPictureItem(0, 0, "tile");
+    for (int i = 0; i < 14; i++)
+        for (int j = 0; j < 14; j++)
+            AddMapItem(i, j, map[i][j][player.GetPlace()]);
+    AddPlayerItem(player.GetPosx(), player.GetPosy(), player.GetToward(), player.GetSex());
+}
+
+void MainWindow::slotShop() {               // Draw the shop scene
+    Clear();
+    AddPictureItem(0, 0, "shop");
+    CreateInform();
+}
+
+void MainWindow::slotEvent(QString str) {           // Choose different event according to str
+    if (str == "new") slotNewGame();
+    else if (str == "boy") player.ChooseSex(1);
+    else if (str == "girl") player.ChooseSex(0);
+    else if (str == "save") slotSaveGame();
+    else if (str == "load") slotLoadGame();
+    else if (str == "phone") slotPhone();
+    else if (str == "shop") slotShop();
+    else if (str == "quit") close();
+    else {
+        Clear();
+        AddPictureItem(-102, 0, "background");
+        if (str == "ending")                // Different ending according to sex
+            str += QString::number(player.GetSex(), kDecimal);
+        AddPictureItem(-102, 0, str);
+    }
+}
+
+void MainWindow::Clear() {              // Clear all the items in scene
+    QList<QGraphicsItem*> listItem = scene->items();
+    while(!listItem.empty()) {
+        scene->removeItem(listItem.at(0));
+        listItem.removeAt(0);
+    }
+}
+
+void MainWindow::slotNewGame() {        // Start a new game
+    Clear();
+
+    // Load initial data
+    db.LoadMap(0);
+    db.LoadTools(0);
+    db.LoadIteam(0);
+    db.LoadCharacter();
+
+    // Select sex
+    view->SetStatus("select");
+    slotEvent("select");
+}
+
+void MainWindow::slotSaveGame() {           // Save data
+    db.SaveMap(1);
+    db.SaveTools(1);
+    db.SaveIteam(1);
+    db.SavePlayer();
+}
+
+void MainWindow::slotLoadGame() {           // Load data
+    db.LoadMap(1);
+    db.LoadTools(1);
+    db.LoadIteam(1);
+    db.LoadPlayer();
+    db.LoadCharacter();
+    view->SetStatus("main");
+    slotDrawScene();
+}
+
+void MainWindow::slotMovePlayerItem(int x, int y) {             // Move player item
+    if (playerItem->zValue() == 0) {
+        playerItem->moveBy(x*kPixlen, y*kPixlen);
+        player.SetPosx(player.GetPosx() + x);
+        player.SetPosy(player.GetPosy() + y);
+        map[player.GetPosx()][player.GetPosy()][player.GetPlace()] = 0;
+    }
+}
+
+void MainWindow::AddMapItem(int x, int y, int num) {            // Add a map block item
+    QGraphicsPixmapItem *item = scene->addPixmap(QPixmap(":/images/" + QString::number(num, kDecimal)));
+    //item->setFlag(QGraphicsItem::ItemIsMovable);
+    item->setPos(x*kPixlen-kOffsetX,y*kPixlen-kOffsetY);
+}
+
+void MainWindow::AddPictureItem(int x, int y, QString str) {           // Add a picture item
+    QGraphicsPixmapItem *item = scene->addPixmap(QPixmap(":/images/" + str));
+    //item->setFlag(QGraphicsItem::ItemIsMovable);
+    item->setPos(x-kOffsetX,y-kOffsetY);
+}
+
+void MainWindow::AddPlayerItem(int x, int y, int toward, int sex) {         // Add a player item
+    QString str = ":/images/1" + QString::number(sex, kDecimal) + QString::number(toward, kDecimal);
+    playerItem = scene->addPixmap(QPixmap(str));
+    playerItem->setPos(x*kPixlen-kOffsetX, y*kPixlen-kOffsetY);
+}
+
+void MainWindow::AddTextItem(int x, int y, QString str, int size, QColor color) {           // Add a text string item
+    QFont font("Times", size);
+    QGraphicsTextItem *item = new QGraphicsTextItem(str);
+    item->setFont(font);
+    item->setDefaultTextColor(color);
+    scene->addItem(item);
+    item->setPos(x-kOffsetX,y-kOffsetY);
+}
+
+/*
+void MainWindow::CreateFight(int num) {     // Draw the fight background and frames
+    if (player.GetFloor() == 5)
+        AddPictureItem(-102, 0, "firebg");
+    else if (player.GetFloor() == 6)
+        AddPictureItem(-102, 0, "icebg");
+    else if (player.GetFloor() == 9)
+        AddPictureItem(-102, 0, "highbg");
+    else
+        AddPictureItem(-102, 0, "lowbg");
+    AddPictureItem(40, 50, "fight1");
+    AddPictureItem(152, 67, "vs");
+    if (tools.GetSword())
+        AddPictureItem(53, 70, "sword");
+    if (tools.GetShield())
+        AddPictureItem(123, 70, "shield");
+    AddPictureItem(85, 65, "sex" + QString::number(player.GetSex(), kDecimal));
+    AddPictureItem(231, 65, QString::number(num, kDecimal));
+    AddPictureItem(40, 140, "fight2");
+    AddPictureItem(40, 256, "fight3");
+}
+
+void MainWindow::slotFight(int num) {       // Fight and draw the result
+    Clear();
+    CreateFight(num);
+
+    int random, damage, time = 0;
+    int playerHp, monsterHp;
+    int playerMiss = 0, monsterMiss = 0;
+    int playerCrit = 0, monsterCrit = 0;
+    QString str1, str2;
+    QTime t = QTime::currentTime();
+    qsrand(t.msec()+t.second()*1000);
+    num -= 11;
+
+    monsterHp = monsters[num].GetHp();
+    playerHp = player.GetHp();
+    str1 = QString::number(playerHp, kDecimal) + "   ->   ";
+    str2 = QString::number(monsterHp, kDecimal) + "   ->   ";
+
+    // While not win or lose do, take turns to attack
+    while (1) {
+        random = qrand() % 99 + 1;
+        damage = qMax(player.GetAttack() - monsters[num].GetDefend(), 1);
+        damage += qFloor(damage*0.5*(random >= player.GetCrit()));    // Check if Crit or not
+        monsterHp -= damage * (random > monsters[num].GetMiss());     // Check if Miss or not
+        if (random <= monsters[num].GetMiss())
+            playerMiss++;
+        if (random >= player.GetCrit())
+            monsterCrit++;
+        if (monsterHp <= 0) {
+            monsterHp = 0;
+            break;
+        }
+        random = qrand() % 99 + 1;
+        damage = qMax(monsters[num].GetAttack() - player.GetDefend(), 1);
+        damage += qFloor(damage*0.5*(random >= monsters[num].GetCrit()));    // Check if Crit or not
+        playerHp -= mode * damage * (random > player.GetMiss());             // Check if Miss or not, also check cheat mode
+        if (random <= player.GetMiss())
+            monsterMiss++;
+        if (random >= monsters[num].GetCrit())
+            playerCrit++;
+        if (playerHp <= 0) {
+            playerHp = 0;
+            break;
+        }
+        time++;
+    }
+
+    // Draw the fighting details
+    str1 += QString::number(playerHp, kDecimal);
+    str2 += QString::number(monsterHp, kDecimal);
+    AddTextItem(60, 155, str1, 12, "WHITE");
+    AddTextItem(205, 155, str2, 12, "WHITE");
+    AddTextItem(75, 171, "Crit : " + QString::number(playerCrit, kDecimal), 12, kRed);
+    AddTextItem(215, 171, "Crit : " + QString::number(monsterCrit, kDecimal), 12, kRed);
+    AddTextItem(75, 188, "Miss : " + QString::number(playerMiss, kDecimal), 12, kGreen);
+    AddTextItem(215, 188, "Miss : " + QString::number(monsterMiss, kDecimal), 12, kGreen);
+    AddTextItem(75, 265, "Money + " + QString::number(monsters[num].GetMoney(), kDecimal), 12, kYellow);
+    AddTextItem(210, 265, "Exp + " + QString::number(monsters[num].GetExp(), kDecimal), 12, kYellow);
+
+    // Get the money and experience
+    player.SetMoney(player.GetMoney() + monsters[num].GetMoney());
+    player.SetExp(player.GetExp() + monsters[num].GetExp());
+    player.SetHp(playerHp);
+
+    // Level up (not dead)
+    if (player.GetExp() >= player.GetNeed() && player.GetHp() > 0) {
+        player.SetExp(player.GetExp() - player.GetNeed());
+        player.LevelUp();
+        AddPictureItem(65, 355, "levelup");
+    }
+}
+*/
+
+
 
 
