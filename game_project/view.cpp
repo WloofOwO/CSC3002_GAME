@@ -334,8 +334,7 @@ int View::access(int x, int y) {          // Check if map(x,y) is access or not
     next_step = tmp;
     if (tmp >= 500) {
         map[x][y][player.GetPlace()] = 0;
-    if (tmp == 0 || (tmp > 900 && tmp < 917) || (tmp > 10 && tmp < 27) || (tmp > 27 && tmp < 35) || tmp == 59 ||
-        (tmp == 3 && keys.GetYellow() > 0) || (tmp == 4 && keys.GetBlue() > 0) || (tmp == 5 && keys.GetRed() > 0)) {
+    if (tmp == 0 || (tmp > 900 && tmp < 917)) {
         map[x][y][player.GetFloor()] = 0;
         return 1;
     } else
