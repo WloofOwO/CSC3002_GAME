@@ -68,7 +68,7 @@ void DataBase::LoadMap(int num) {         // Load map data, num = 0 for new, oth
     QString str = "SELECT layer0, layer1, layer2, layer3, layer4, layer5, layer6, layer7, layer8, layer9 FROM map WHERE id = " + QString::number(num+1, kDecimal);
     query.exec(str);
     query.next();
-    for (int i = 0; i < kMaxFloor; i++) {ShopItem
+    for (int i = 0; i < kMaxFloor; i++) {
         QString floors = query.value(i).toString();
         floors = floors.simplified();//去空格
         int tmp = 0;
@@ -92,7 +92,7 @@ void DataBase::LoadPlayer() {         // Load player data
     player.SetMoney(query.value(3).toInt());
     player.SetExp(query.value(4).toInt());
     player.SetMiss(query.value(5).toInt());
-    player.Setlike(query.value(6).toInt());
+    player.SetLike(query.value(6).toInt());
     player.SetGrade(query.value(7).toInt());
     player.SetPosx(query.value(8).toInt());
     player.SetPosy(query.value(9).toInt());
@@ -115,7 +115,7 @@ void DataBase::LoadCharacter() {         // Load monsters data
         character[i].SetMoney(query.value(3).toInt());
         character[i].SetExp(query.value(4).toInt());
         character[i].SetMiss(query.value(5).toInt());
-        character[i].Setlike(query.value(6).toInt());
+        character[i].SetLike(query.value(6).toInt());
     }
     query.clear();
 }

@@ -17,9 +17,6 @@ public slots:
     void slotCheatMoney();
     void slotCheatGrade(); //不同年级触发不同剧情事件
     void slotCheatLike();
-    void slotCheatGirlFriend();
-    void slotCheatBoyFriend();
-    void slotCheatResearchProf();
     void slotCheatIteam1(); //商店里卖的物品
     void slotCheatIteam2();
     void slotCheatIteam3();

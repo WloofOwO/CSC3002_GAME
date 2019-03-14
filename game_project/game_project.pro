@@ -18,7 +18,10 @@ SOURCES += main.cpp\
     player.cpp \
     view.cpp \
     database.cpp \
-    player.cpp
+    player.cpp \
+    view.cpp \
+    mainwindow.cpp \
+    cheat.cpp
 
 HEADERS += mainwindow.h \
     cheat.h \

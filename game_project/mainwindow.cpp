@@ -38,7 +38,6 @@ extern int mode;
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     // Initialize private varible
     cheats = new Cheat();
-    //phone = new Phone();
     scene = new QGraphicsScene;
     view = new View(this);
 
@@ -369,7 +368,4 @@ void MainWindow::slotFight(int num) {       // Fight and draw the result
     }
 }
 */
-
-
-
 
