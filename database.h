@@ -7,7 +7,7 @@
 #include <QSqlError>
 #include <QSqlRecord>
 #include <QSqlQuery>
-
+//test
 class DataBase {
 public:
     DataBase();
