@@ -72,9 +72,9 @@ void DataBase::LoadMap(int num) {         // Load map data, num = 0 for new, oth
         QString floors = query.value(i).toString();
         floors = floors.simplified();//去空格
         int tmp = 0;
-        while (floors.length() > 3) {
-            map[tmp%kMapLen][tmp/kMapLen][i] = floors.left(2).toInt();
-            floors.remove(0,3); //删除已读取
+        while (floors.length() > 4) {
+            map[tmp%kMapLen][tmp/kMapLen][i] = floors.left(3).toInt();
+            floors.remove(0,4); //删除已读取
             tmp++;
         }
         map[kMapLen-1][kMapLen-1][i] = floors.toInt();
