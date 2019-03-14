@@ -53,6 +53,7 @@ private:
     QAction *loadGame;
     QAction *saveGame;
     QAction *exitGame;
+    QAction *cheatEnergy;
     QAction *cheatIQ;
     QAction *cheatEQ;
     QAction *cheatMode;
@@ -64,6 +65,7 @@ private:
     QAction *cheatItem4;
     QAction *cheatItem5;
     QAction *cheatItem6;
+    QAction *cheatLike;
     QAction *cheatGodMode;
     Cheat *cheats;
     QAction *ToGo; //外卖
